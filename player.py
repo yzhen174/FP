@@ -256,9 +256,7 @@ class Player:
                 continue
 
             try:
-                stat_number = int(
-                input("Enter # of stat point you want to add: ")
-            )
+                stat_number = int(input("Enter # of stat point you want to add: "))
             except ValueError:
                 print("Invalid number.")
                 continue
