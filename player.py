@@ -254,9 +254,7 @@ class Player:
                 continue
 
             try:
-                stat_number = int(
-                input("Enter # of stat point you want to add: ")
-            )
+                stat_number = int(input("Enter # of stat point you want to add: "))
             except ValueError:
                 print("Invalid number.")
                 continue
@@ -354,9 +352,7 @@ class Player:
             print(i + 1,".",item["name"],"x",count)
 
         try:
-            choice = int(
-            input("Choose equipment number: ")
-        )
+            choice = int(input("Choose equipment number: "))
         except ValueError:
             print("Invalid choice.")
             return
