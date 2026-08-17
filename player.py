@@ -246,12 +246,10 @@ class Player:
             if choice == "8":
                 self.inventory_menu()
                 continue
-
-            if choice not in ["1", "2", "3", "4", "5"]:
+            elif choice not in ["1", "2", "3", "4", "5"]:
                 print("Invalid choice.")
                 continue
-
-            if self.stat_points <= 0:
+            elif self.stat_points <= 0:
                 print("You have no stat points.")
                 continue
 
