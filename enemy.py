@@ -1,10 +1,11 @@
 import random
 import copy
 from mcts import MCTS
+from enemy_ai import legal_actions
 
 
 class Enemy:
-    def __init__(self, level: int = 1):
+    def __init__(self, level: int = 1, enemy_type=None):
         types = {
             "warrior": {"hp": 120, "attack": 18, "defense": 8},
             "tank": {"hp": 160, "attack": 12, "defense": 14},
@@ -13,7 +14,7 @@ class Enemy:
         }
 
         self.level = level
-        self.type = random.choice(list(types.keys()))
+        self.type = enemy_type or random.choice(list(types.keys()))
         base = types[self.type]
 
         # scale a little with level
@@ -28,19 +29,23 @@ class Enemy:
     def __repr__(self):
         return f"<Enemy {self.type} L{self.level} HP:{self.hp}/{self.max_hp} ATK:{self.attack} DEF:{self.defense}>"
 
-    def attack_player(self, player):
+    def attack_player(self, player, turn=1, max_turn=10):
         """
         Decide an action using MCTS and apply it against the real `player`.
 
+        Behavior trees filter which actions MCTS may search.
         Returns the integer damage dealt (0 for defend).
         """
-        # Use a lightweight BattleState adapter to simulate outcomes
-        state = BattleState(player, self)
+        allowed = legal_actions(player, self, turn, max_turn)
+        if not allowed:
+            allowed = ["attack", "defend"]
+
+        state = BattleState(player, self, enemy_legal=allowed)
         mcts = MCTS(iter_limit=200, rollout_limit=12)
         best_action = mcts.search(state)
 
-        if best_action is None:
-            best_action = random.choice(["attack", "defend"])
+        if best_action is None or best_action not in allowed:
+            best_action = random.choice(allowed)
 
         if best_action == "defend":
             self.is_defending = True
@@ -71,7 +76,7 @@ class BattleState:
     crit values instead of sampling random crits.
     """
 
-    def __init__(self, player, enemy):
+    def __init__(self, player, enemy, enemy_legal=None):
         # Player fields (snapshot)
         self.player_hp = int(player.hp)
         self.player_max_hp = int(player.max_hp)
@@ -94,6 +99,7 @@ class BattleState:
         self.current_turn = "enemy"
         self.turns = 0
         self.max_turns = 10
+        self.enemy_legal = list(enemy_legal) if enemy_legal else ["attack", "defend"]
 
     def clone(self):
         return copy.deepcopy(self)
@@ -102,7 +108,7 @@ class BattleState:
         if self.is_terminal():
             return []
         if self.current_turn == "enemy":
-            return ["attack", "defend"]
+            return list(self.enemy_legal)
         # for rollout simplicity, assume the player always attacks
         return ["attack"]
 
