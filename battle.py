@@ -21,7 +21,7 @@ def battle(player, enemy, level):
             check_weapon_break(player)
             return True
   
-        enemy_turn(player, enemy)
+        enemy_turn(player, enemy, turn, max_turn)
         if player.hp <= 0 or turn >= max_turn:
             player.hp = max(0, player.hp)
             check_weapon_break(player)
@@ -30,7 +30,7 @@ def battle(player, enemy, level):
         turn += 1
 
 
-def player_turn(player, enemy， turn, max_turn):
+def player_turn(player, enemy, turn, max_turn):
     while True:
         print("\n1. Attack")
         print("2. Defend")
@@ -48,11 +48,13 @@ def player_turn(player, enemy， turn, max_turn):
             print("Invalid choice.")
 
 
-def enemy_turn(player, enemy, turn, max_turn):
-    damage = enemy.attack_player(player)
+def enemy_turn(player, enemy, turn, max_turn,):
+    damage = enemy.attack_player(player, turn, max_turn)
     print("Enemy dealt",damage,"damage.")
 
     player.is_defending = False
+
+
 
 def win_reward(player):
     points = 3
