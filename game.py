@@ -1,6 +1,7 @@
 from player import Player
 from enemy import Enemy
 from battle import battle
+import analyze
 
 SAVE_FILE = "save.txt"
 
@@ -68,6 +69,21 @@ def game_loop(player, level):
                 save_game(level)
                 return
         else:
+            # Run post-match analysis and suggestions before showing lose menu
+            try:
+                analysis_text, suggestion = analyze.analyze_match(player, enemy)
+                print("\n====================")
+                print("    MATCH ANALYSIS")
+                print("====================")
+                print(analysis_text)
+                if suggestion:
+                    print("\nSuggested allocation:")
+                    for stat, points in suggestion.items():
+                        print("-", stat + ":", "+" + str(points))
+            except Exception:
+                # Fail silently so we don't interfere with existing flow
+                pass
+
             result = lose_menu()
             if result == "retry":
                 player.hp = player_hp
