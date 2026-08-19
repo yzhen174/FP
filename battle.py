@@ -2,7 +2,6 @@ import random
 
 
 def battle(player, enemy, level):
-    scale_enemy(enemy, level)
     turn = 1
     max_turn = 10
 
@@ -31,7 +30,7 @@ def battle(player, enemy, level):
         turn += 1
 
 
-def player_turn(player, enemy):
+def player_turn(player, enemy， turn, max_turn):
     while True:
         print("\n1. Attack")
         print("2. Defend")
@@ -49,24 +48,11 @@ def player_turn(player, enemy):
             print("Invalid choice.")
 
 
-def enemy_turn(player, enemy):
+def enemy_turn(player, enemy, turn, max_turn):
     damage = enemy.attack_player(player)
     print("Enemy dealt",damage,"damage.")
 
     player.is_defending = False
-
-def scale_enemy(enemy, level):
-    if level == 1:
-        return
-    multiplier = random.uniform(1.25, 1.75)
-
-    enemy.max_hp = int(enemy.max_hp * multiplier)
-    enemy.hp = enemy.max_hp
-    enemy.attack = int(enemy.attack * multiplier)
-    enemy.defense = int(enemy.defense * multiplier)
-
-    print("Enemy stat multiplier:",round(multiplier, 2))
-
 
 def win_reward(player):
     points = 3
