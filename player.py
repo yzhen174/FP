@@ -3,8 +3,8 @@ import random
 
 class Player:
     def __init__(self):
-        self.base_damage = 10
-        self.base_defense = 5
+        self.base_damage = 25
+        self.base_defense = 10
         self.base_hp = 100
         self.base_crit_chance = 0.10
         self.base_crit_damage = 1.00
@@ -64,7 +64,7 @@ class Player:
         weapon_damage = self.get_weapon_damage()
         damage = (
             self.base_damage
-            + self.strength * 1.75
+            + self.strength * 1.85
             + weapon_damage
             - enemy.defense
         )

@@ -8,8 +8,8 @@ from enemy import BattleState
 class PlayerSnapshot:
 	def __init__(self, player, added: Dict[str, int]):
 		# copy base properties
-		self.base_damage = getattr(player, "base_damage", 10)
-		self.base_defense = getattr(player, "base_defense", 5)
+		self.base_damage = getattr(player, "base_damage", 25)
+		self.base_defense = getattr(player, "base_defense", 10)
 		self.base_hp = getattr(player, "base_hp", 100)
 		self.base_crit_chance = getattr(player, "base_crit_chance", 0.10)
 		self.base_crit_damage = getattr(player, "base_crit_damage", 1.00)
@@ -79,7 +79,7 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 	"""
 	# quick metrics
 	# estimate per-attack damages
-	player_attack_est = player.base_damage + player.strength * 1.75 + player.get_weapon_damage()
+	player_attack_est = player.base_damage + player.strength * 1.85 + player.get_weapon_damage()
 	player_expected_multiplier = 1 + player.get_crit_chance() * player.get_crit_damage()
 	player_damage_per_round = max(0, player_attack_est - enemy.defense) * player_expected_multiplier
 
