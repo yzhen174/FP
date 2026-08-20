@@ -30,7 +30,7 @@ def main_menu():
 def new_game():
     level = 1
     player = Player()
-    stat_screen(player)
+    player.stats()
     game_loop(player, level)
 
 
@@ -41,7 +41,7 @@ def continue_game():
         print("\nSave loaded.")
         print("Current Level:", level)
         player = Player()
-        stat_screen(player)
+        player.stats()
         game_loop(player, level)
 
     except FileNotFoundError:
@@ -58,10 +58,10 @@ def game_loop(player, level):
         enemy = Enemy(level)
         player_hp = player.hp
         player_won = battle(player, enemy, level)
-        stat_screen(player)
+        
 
         if player_won:
-            result = win_menu()
+            result = win_menu(player)
             if result == "next":
                 level += 1
                 continue
@@ -84,48 +84,51 @@ def game_loop(player, level):
                 # Fail silently so we don't interfere with existing flow
                 pass
 
-            result = lose_menu()
+            result = lose_menu(player)
             if result == "retry":
                 player.hp = player_hp
                 continue
             elif result == "restart":
                 level = 1
                 player = Player()
-                stat_screen(player)
+                player.stats()
                 continue
 
-def stat_screen(player):
-    player.stats()
-
-def win_menu():
+def win_menu(player):
     while True:
         print("\n====================")
         print("      YOU WIN!")
         print("====================")
         print("1. Next Level")
-        print("2. Exit and Save")
+        print("2. Stats")
+        print("3. Exit and Save")
 
         choice = input("Choose an option: ")
         if choice == "1":
             return "next"
         elif choice == "2":
+            player.stats()
+        elif choice == "3":
             return "exit"
         else:
             print("Invalid choice.")
 
-def lose_menu():
+def lose_menu(player):
     while True:
         print("\n====================")
         print(" YOU LOST")
         print("====================")
 
         print("1. Retry")
-        print("2. Restart")
+        print("2. Stats")
+        print("3. Restart")
 
         choice = input("Choose an option: ")
         if choice == "1":
             return "retry"
         elif choice == "2":
+            player.stats()
+        elif choice == "3":
             return "restart"
         else:
             print("Invalid choice.")

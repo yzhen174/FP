@@ -32,6 +32,7 @@ class PlayerSnapshot:
 
 		# Weapon-derived values
 		self._weapon = getattr(player, "weapon", None) or {}
+		self.is_defending = getattr(player, "is_defending", False)
 
 	def get_crit_chance(self):
 		crit_chance = (self.base_crit_chance + self.crit * 0.025)
