@@ -30,7 +30,7 @@ def battle(player, enemy, level):
         turn += 1
 
 
-def player_turn(player, enemy, turn, max_turn):
+def player_turn(player, enemy):
     while True:
         print("\n1. Attack")
         print("2. Defend")
