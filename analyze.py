@@ -59,16 +59,37 @@ class PlayerSnapshot:
 
 def evaluate_allocation(player, enemy, added: Dict[str, int]) -> float:
 	"""
-	Return a score in player's perspective: 1.0 = certain win, 0.0 = certain loss.
-	Uses the deterministic `BattleState` rollout (enemy perspective get_result).
+	Return a granular score in player's perspective between 0 and 1.
+
+	We run a deterministic BattleState rollout and compute a continuous
+	metric based on remaining HP ratio: player_share = player_hp / (player_hp + enemy_hp).
+	This gives smoother feedback than the coarse win/loss result and makes
+	greedy search sensitive to small improvements.
 	"""
 	snap = PlayerSnapshot(player, added)
-	# Provide a small snapshot object that BattleState expects (duck-typing)
-	# BattleState reads attributes and methods like `get_weapon_damage()`.
 	state = BattleState(snap, enemy)
-	result = state.get_result()
-	# `result` is from enemy perspective (1.0 enemy win). Convert to player perspective
-	return 1.0 - float(result)
+
+	# play out deterministically as in simulate_match: enemy uses MCTS-light, player attacks
+	# To keep this function cheap, use a small MCTS instance for enemy choices
+	from mcts import MCTS as _MCTS
+	mcts = _MCTS(iter_limit=60, rollout_limit=8)
+
+	while not state.is_terminal():
+		if state.current_turn == "enemy":
+			action = mcts.search(state)
+			if action is None:
+				action = "attack"
+			state.do_action(action)
+		else:
+			state.do_action("attack")
+
+	p = float(state.player_hp)
+	e = float(state.enemy_hp)
+	if p + e <= 0:
+		# both dead: neutral
+		return 0.5
+	# player's share of remaining HP (0..1)
+	return p / (p + e)
 
 
 def analyze_match(player, enemy, max_suggestion_points: int = 7):
@@ -102,24 +123,29 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 	allocation = {"strength": 0, "defense": 0, "crit": 0, "crit_damage": 0, "health": 0}
 	best_score = evaluate_allocation(player, enemy, allocation)
 
-	for _ in range(max_suggestion_points):
+	remaining = max_suggestion_points
+	# Greedy: in each iteration, consider adding 1..remaining points to each stat,
+	# pick the action (stat, points) with the best score improvement.
+	while remaining > 0:
 		best_delta = 0.0
-		best_stat = None
+		best_choice = None
 		for stat in allocation.keys():
-			cand = allocation.copy()
-			cand[stat] += 1
-			score = evaluate_allocation(player, enemy, cand)
-			delta = score - best_score
-			if delta > best_delta:
-				best_delta = delta
-				best_stat = stat
+			for k in range(1, remaining + 1):
+				cand = allocation.copy()
+				cand[stat] += k
+				score = evaluate_allocation(player, enemy, cand)
+				delta = score - best_score
+				if delta > best_delta:
+					best_delta = delta
+					best_choice = (stat, k)
 
-		if best_stat is None:
+		if best_choice is None:
 			break
-		allocation[best_stat] += 1
+		stat, k = best_choice
+		allocation[stat] += k
+		remaining -= k
 		best_score += best_delta
-		# stop early if allocation yields a winning deterministic rollout
-		if math.isclose(best_score, 1.0) or best_score > 0.999:
+		if best_score >= 0.999:
 			break
 
 	# Provide textual explanation and the allocation
@@ -130,6 +156,20 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 		analysis += "\nNo single-point greedy allocation improved outcome significantly. Try larger re-specs or different weapon choices."
 	else:
 		analysis += f"\nSuggested point allocation (greedy up to {max_suggestion_points}): {suggestion}"
+
+		# Add short descriptions for each suggested stat so the player understands why
+		rationale_map = {
+			"strength": "Increases your damage output so you defeat enemies faster.",
+			"defense": "Reduces incoming damage each hit, improving survivability.",
+			"health": "Increases max HP so you survive more rounds.",
+			"crit": "Raises crit chance, increasing the chance of high-damage hits.",
+			"crit_damage": "Boosts crit multiplier, making critical hits much stronger.",
+		}
+
+		analysis += "\nWhy these help:"
+		for stat, pts in suggestion.items():
+			reason = rationale_map.get(stat, "Provides a general improvement.")
+			analysis += f"\n- {stat}: +{pts} — {reason}"
 
 	return analysis, suggestion
 
