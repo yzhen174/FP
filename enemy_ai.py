@@ -1,25 +1,3 @@
-"""
-Enemy AI contract
-
-tick(player, enemy, turn, max_turn) -> "attack" | "defend"
-
-Called once per enemy turn. Does not run menus, rewards, or damage.
-Battle (later) will execute the returned action.
-
-Reads, does not require writing:
-  player.hp, player.max_hp, player.is_defending
-  enemy.hp, enemy.max_hp, enemy.type, enemy.bleed_stacks
-  turn, max_turn
-
-Blackboard each tick (task 2 will build this):
-  enemy_hp_ratio   = enemy.hp / enemy.max_hp
-  player_hp_ratio  = player.hp / player.max_hp
-  player_guarding  = player.is_defending
-  bleed_count      = len(enemy.bleed_stacks)
-  enemy_type       = enemy.type
-  turns_left       = max_turn - turn
-"""
-
 AGGRESSIVE = "Aggressive"
 DEFENSIVE = "Defensive"
 DESPERATE = "Desperate"
@@ -197,7 +175,24 @@ TREES = {
     "tank": TANK_TREE,
     "warrior": WARRIOR_TREE,
     "assassin": ASSASSIN_TREE,
-    "bruiser": WARRIOR_TREE,
+    # Bruiser is like a warrior but more likely to guard against a defending player
+    # and will choose to defend earlier when its HP is moderately low.
+    "bruiser": Selector(
+        Sequence(
+            Condition(lambda world: world["mood"] == AGGRESSIVE),
+            Action("attack"),
+        ),
+        Sequence(
+            Condition(lambda world: world["player_guarding"]),
+            Action("defend"),
+        ),
+        Sequence(
+            Condition(lambda world: world["mood"] == DEFENSIVE),
+            Condition(lambda world: world["enemy_hp_ratio"] < 0.55),
+            Action("defend"),
+        ),
+        Action("attack"),
+    ),
 }
 
 
