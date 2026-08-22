@@ -59,6 +59,13 @@ def enemy_turn(player, enemy, turn, max_turn,):
 def win_reward(player):
     points = 3
     player.stat_points += points
+    heal_amount = int(player.max_hp * 0.30)
+    player.hp += heal_amount
+
+    if player.hp > player.max_hp:
+        player.hp = player.max_hp
+
+    print("You have recovered", heal_amount, "HP.")
     if random.random() <= 0.15:
         print("\nYou found equipment!")
         weapon_type = random.choice([
