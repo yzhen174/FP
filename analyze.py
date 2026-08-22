@@ -27,8 +27,8 @@ class PlayerSnapshot:
 		# Start snapshot HP as the current fraction of max on the real player
 		real_hp = getattr(player, "hp", self.max_hp)
 		real_max = getattr(player, "max_hp", self.max_hp)
-		frac = real_hp / real_max if real_max > 0 else 1.0
-		self.hp = max(0, int(self.max_hp * frac))
+		"""frac = real_hp / real_max if real_max > 0 else 1.0"""
+		self.hp = self.max_hp
 
 		# Weapon-derived values
 		self._weapon = getattr(player, "weapon", None) or {}
