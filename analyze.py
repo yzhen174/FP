@@ -160,11 +160,11 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 
 		# Add short descriptions for each suggested stat so the player understands why
 		rationale_map = {
-			"strength": "Increases your damage output so you defeat enemies faster.",
-			"defense": "Reduces incoming damage each hit, improving survivability.",
-			"health": "Increases max HP so you survive more rounds.",
-			"crit": "Raises crit chance, increasing the chance of high-damage hits.",
-			"crit_damage": "Boosts crit multiplier, making critical hits much stronger.",
+			"strength": "Increases your attack damage. Helps you defeat enemies faster.",
+			"defense": "Reduces damage absorbed from each hit. Improves odds of survivability.",
+			"health": "Increases HP (Health Points). Helps you survive rounds longer.",
+			"crit": "Increases chance of landing critical hits. Improves odds of high damage attacks.",
+			"crit_damage": "Boosts crit multiplier. Makes critical hits deal more damage.",
 		}
 
 		analysis += "\nWhy these help:"
