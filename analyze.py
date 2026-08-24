@@ -113,11 +113,11 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 
 	# Heuristics about weaknesses
 	if player_damage_per_round <= enemy_damage_per_round:
-		analysis_lines.append("You are doing less or equal damage per round than the enemy.")
-		primary_recommendation = "strength"
+		analysis_lines.append("Your attacks are doing less or equal the amount of damage as the enemy's attacks per round.")
+		primary_recommendation = "strength: Try increasing your strength"
 	else:
-		analysis_lines.append("You deal more damage per round than the enemy, but you still lost—consider survivability or crits.")
-		primary_recommendation = "health"
+		analysis_lines.append("You deal more damage than the enemy per round, but you still lost. Think about survivability and critical hits.")
+		primary_recommendation = "health or defense: Try increasing health or defense for higher chances of survival"
 
 	# Greedy allocation search
 	allocation = {"strength": 0, "defense": 0, "crit": 0, "crit_damage": 0, "health": 0}
@@ -153,7 +153,8 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 	suggestion = {k: v for k, v in allocation.items() if v > 0}
 
 	if not suggestion:
-		analysis += "\nNo single-point greedy allocation improved outcome significantly. Try larger re-specs or different weapon choices."
+		# No single-point greedy allocation improved outcome significantly. Try larger re-specs or different weapon choices.
+		analysis += "\nNo small stat change made a big different. Try changing serveral stat points at once or choosing a different weapon."
 	else:
 		analysis += f"\nSuggested point allocation (greedy up to {max_suggestion_points}): {suggestion}"
 
