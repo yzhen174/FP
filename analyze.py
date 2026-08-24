@@ -108,15 +108,15 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 
 	analysis_lines = []
 	analysis_lines.append(f"Enemy type: {getattr(enemy, 'type', 'unknown')}")
-	analysis_lines.append(f"Player est. damage/round: {player_damage_per_round:.1f}")
-	analysis_lines.append(f"Enemy est. damage/round: {enemy_damage_per_round:.1f}")
+	analysis_lines.append(f"Player estimated damage per round: {player_damage_per_round:.1f}")
+	analysis_lines.append(f"Enemy estimated damage per round: {enemy_damage_per_round:.1f}")
 
 	# Heuristics about weaknesses
 	if player_damage_per_round <= enemy_damage_per_round:
 		analysis_lines.append("Your attacks are doing less or equal the amount of damage as the enemy's attacks per round.")
 		primary_recommendation = "strength: Try increasing your strength"
 	else:
-		analysis_lines.append("You deal more damage than the enemy per round, but you still lost. Think about survivability and critical hits.")
+		analysis_lines.append("You deal more damage than the enemy, but you still lost. Think about survivability and critical hits.")
 		primary_recommendation = "health or defense: Try increasing health or defense for higher chances of survival"
 
 	# Greedy allocation search
@@ -154,9 +154,9 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 
 	if not suggestion:
 		# No single-point greedy allocation improved outcome significantly. Try larger re-specs or different weapon choices.
-		analysis += "\nNo small stat change made a big different. Try changing serveral stat points at once or choosing a different weapon."
+		analysis += "\nNo small stat change made a big difference. Try changing several stat points at once or choosing a different weapon."
 	else:
-		analysis += f"\nSuggested point allocation (greedy up to {max_suggestion_points}): {suggestion}"
+		analysis += f"\nSuggested stat point changes: {suggestion}"
 
 		# Add short descriptions for each suggested stat so the player understands why
 		rationale_map = {
@@ -164,7 +164,7 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 			"defense": "Reduces damage absorbed from each hit. Improves odds of survivability.",
 			"health": "Increases HP (Health Points). Helps you survive rounds longer.",
 			"crit": "Increases chance of landing critical hits. Improves odds of high damage attacks.",
-			"crit_damage": "Boosts crit multiplier. Makes critical hits deal more damage.",
+			"crit_damage": "Boosts crit attack power. Makes critical hits deal more damage.",
 		}
 
 		analysis += "\nWhy these help:"
