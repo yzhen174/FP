@@ -1,6 +1,4 @@
 from typing import Dict
-import copy
-import math
 
 from enemy import BattleState
 
@@ -23,11 +21,6 @@ class PlayerSnapshot:
 
 		# HP and weapon
 		# Recompute max_hp similar to Player.calculate_max_hp
-		self.max_hp = int(self.base_hp + self.health * 1.5)
-		# Start snapshot HP as the current fraction of max on the real player
-		real_hp = getattr(player, "hp", self.max_hp)
-		real_max = getattr(player, "max_hp", self.max_hp)
-		"""frac = real_hp / real_max if real_max > 0 else 1.0"""
 		self.hp = self.max_hp
 
 		# Weapon-derived values
@@ -156,6 +149,7 @@ def analyze_match(player, enemy, max_suggestion_points: int = 7):
 		# No single-point greedy allocation improved outcome significantly. Try larger re-specs or different weapon choices.
 		analysis += "\nNo small stat change made a big difference. Try changing several stat points at once or choosing a different weapon."
 	else:
+		# Suggested single point allocation
 		analysis += f"\nSuggested stat point changes: {suggestion}"
 
 		# Add short descriptions for each suggested stat so the player understands why
